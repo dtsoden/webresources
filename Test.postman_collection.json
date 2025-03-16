@@ -1,0 +1,110 @@
+{
+	"info": {
+		"_postman_id": "19d4e4aa-5b69-4e5f-a477-848d4a214c6e",
+		"name": "Test",
+		"description": "# This is a postman test Jotform",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "Edit Submission  Form-Data",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "formdata",
+					"formdata": [
+						{
+							"key": "submission[image_url]",
+							"value": "https://davidsoden.com",
+							"type": "text"
+						}
+					]
+				},
+				"url": {
+					"raw": "https://api.jotform.com/submission/6179436876208881389?apiKey=<<SEE TICKET FOR API KEY>>",
+					"protocol": "https",
+					"host": [
+						"api",
+						"jotform",
+						"com"
+					],
+					"path": [
+						"submission",
+						"6179436876208881389"
+					],
+					"query": [
+						{
+							"key": "apiKey",
+							"value": "<<SEE TICKET FOR API KEY>>"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Edit Submission  JSON",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n  \"submission\": {\r\n    \"image_url\": \"https://davidsoden.com\"\r\n  }\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "https://api.jotform.com/submission/6179436876208881389?apiKey=<<SEE TICKET FOR API KEY>>",
+					"protocol": "https",
+					"host": [
+						"api",
+						"jotform",
+						"com"
+					],
+					"path": [
+						"submission",
+						"6179436876208881389"
+					],
+					"query": [
+						{
+							"key": "apiKey",
+							"value": "<<SEE TICKET FOR API KEY>>"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Get Submission",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "https://api.jotform.com/submission/6179436876208881389?apiKey=<<SEE TICKET FOR API KEY>>",
+					"protocol": "https",
+					"host": [
+						"api",
+						"jotform",
+						"com"
+					],
+					"path": [
+						"submission",
+						"6179436876208881389"
+					],
+					"query": [
+						{
+							"key": "apiKey",
+							"value": "<<SEE TICKET FOR API KEY>>"
+						}
+					]
+				}
+			},
+			"response": []
+		}
+	]
+}
