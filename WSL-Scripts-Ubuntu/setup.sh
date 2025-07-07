@@ -63,13 +63,27 @@ nvm install node
 print_step "Installing Claude Code..."
 npm install -g @anthropic-ai/claude-code
 
+# Add npm global bin to PATH for current session
+NPM_PREFIX=$(npm config get prefix)
+export PATH="$NPM_PREFIX/bin:$PATH"
+
 # Verify installation
 print_step "Verifying installation..."
-if command -v claude-code >/dev/null 2>&1; then
-    print_status "✓ Claude Code installed successfully"
-    claude-code --version
+print_status "NPM global prefix: $NPM_PREFIX"
+print_status "Checking for claude-code at: $NPM_PREFIX/bin/claude-code"
+
+if [ -f "$NPM_PREFIX/bin/claude-code" ]; then
+    print_status "✓ Claude Code file exists"
+    if command -v claude-code >/dev/null 2>&1; then
+        print_status "✓ Claude Code command works"
+        claude-code --version
+    else
+        print_status "✓ Claude Code installed but not in PATH (will work after shell restart)"
+    fi
 else
-    print_error "✗ Claude Code installation failed"
+    print_error "✗ Claude Code file not found at expected location"
+    print_status "Listing contents of $NPM_PREFIX/bin:"
+    ls -la "$NPM_PREFIX/bin/" || echo "Directory doesn't exist"
     exit 1
 fi
 
@@ -81,6 +95,13 @@ if ! grep -q "NVM_DIR" ~/.bashrc; then
     echo 'export NVM_DIR="$HOME/.nvm"' >> ~/.bashrc
     echo '[ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"' >> ~/.bashrc
     echo '[ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"' >> ~/.bashrc
+fi
+
+# Add npm global bin to PATH in bashrc
+if ! grep -q "npm config get prefix" ~/.bashrc; then
+    echo "" >> ~/.bashrc
+    echo "# NPM Global PATH" >> ~/.bashrc
+    echo 'export PATH="$(npm config get prefix)/bin:$PATH"' >> ~/.bashrc
 fi
 
 # Add aliases
