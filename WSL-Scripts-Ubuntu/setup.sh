@@ -70,18 +70,18 @@ export PATH="$NPM_PREFIX/bin:$PATH"
 # Verify installation
 print_step "Verifying installation..."
 print_status "NPM global prefix: $NPM_PREFIX"
-print_status "Checking for claude-code at: $NPM_PREFIX/bin/claude-code"
+print_status "Checking for claude at: $NPM_PREFIX/bin/claude"
 
-if [ -f "$NPM_PREFIX/bin/claude-code" ]; then
+if [ -f "$NPM_PREFIX/bin/claude" ]; then
     print_status "✓ Claude Code file exists"
-    if command -v claude-code >/dev/null 2>&1; then
-        print_status "✓ Claude Code command works"
-        claude-code --version
+    if command -v claude >/dev/null 2>&1; then
+        print_status "✓ Claude command works"
+        claude --version
     else
-        print_status "✓ Claude Code installed but not in PATH (will work after shell restart)"
+        print_status "✓ Claude installed but not in PATH (will work after shell restart)"
     fi
 else
-    print_error "✗ Claude Code file not found at expected location"
+    print_error "✗ Claude file not found at expected location"
     print_status "Listing contents of $NPM_PREFIX/bin:"
     ls -la "$NPM_PREFIX/bin/" || echo "Directory doesn't exist"
     exit 1
@@ -105,8 +105,8 @@ if ! grep -q "npm config get prefix" ~/.bashrc; then
 fi
 
 # Add aliases
-if ! grep -q "alias claude=" ~/.bashrc; then
-    echo 'alias claude="claude-code"' >> ~/.bashrc
+if ! grep -q "alias claude-code=" ~/.bashrc; then
+    echo 'alias claude-code="claude"' >> ~/.bashrc
 fi
 
 echo ""
@@ -117,12 +117,24 @@ echo ""
 print_status "Installation successful:"
 echo "  • Node.js: $(node --version)"
 echo "  • NPM: $(npm --version)"
-echo "  • Claude Code: Working"
+echo "  • Claude Code: Installed as 'claude' command"
 echo ""
-print_status "You can now use:"
-echo "  • claude-code --help"
-echo "  • claude --help"
+print_status "🎉 SUCCESS! Claude Code is ready to use!"
 echo ""
-print_status "For NEW terminals, run: source ~/.bashrc"
-echo "Current terminal is ready to use!"
+print_status "📋 IMPORTANT: To use Claude Code, you have 2 options:"
+echo ""
+echo "  OPTION 1 (Current terminal):"
+echo "    Run: source ~/.bashrc"
+echo "    Then: claude --version"
+echo ""
+echo "  OPTION 2 (New terminal - RECOMMENDED):"
+echo "    1. Type: exit"
+echo "    2. Open WSL again: wsl -d Ubuntu"
+echo "    3. Try: claude --version"
+echo ""
+print_status "Available commands after restart:"
+echo "  • claude --help          (main command)"
+echo "  • claude-code --help     (alias)"
+echo ""
+print_status "🚀 That's it! Your development environment is ready!"
 echo ""
