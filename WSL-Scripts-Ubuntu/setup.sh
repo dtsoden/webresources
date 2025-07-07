@@ -95,12 +95,18 @@ fi
 print_step "Installing Claude Code CLI..."
 npm install -g @anthropic-ai/claude-code
 
+# Get npm global bin path and add to PATH for current session
+NPM_GLOBAL_PATH=$(npm config get prefix)/bin
+export PATH="$NPM_GLOBAL_PATH:$PATH"
+
 # Verify Claude Code installation
 if command -v claude-code >/dev/null 2>&1; then
     CLAUDE_VERSION=$(claude-code --version 2>/dev/null || echo "installed")
     print_status "Claude Code installed: $CLAUDE_VERSION"
 else
     print_error "Claude Code installation may have failed"
+    print_warning "Global npm path: $NPM_GLOBAL_PATH"
+    print_warning "Current PATH: $PATH"
     print_warning "Try running: npm install -g @anthropic-ai/claude-code"
 fi
 
@@ -117,6 +123,15 @@ if ! grep -q "NVM_DIR" ~/.bashrc; then
     print_status "NVM configuration added to ~/.bashrc"
 else
     print_status "NVM already configured in ~/.bashrc"
+fi
+
+# Add npm global bin to PATH in bashrc
+NPM_GLOBAL_PATH=$(npm config get prefix)/bin
+if ! grep -q "npm global bin" ~/.bashrc; then
+    echo "" >> ~/.bashrc
+    echo "# NPM Global bin path (added by setup script)" >> ~/.bashrc
+    echo "export PATH=\"\$(npm config get prefix)/bin:\$PATH\"" >> ~/.bashrc
+    print_status "NPM global path added to ~/.bashrc"
 fi
 
 # Add helpful aliases
