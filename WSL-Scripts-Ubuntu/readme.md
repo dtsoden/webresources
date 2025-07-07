@@ -35,6 +35,12 @@ Copy and paste this command in your Ubuntu terminal:
 curl -fsSL https://raw.githubusercontent.com/dtsoden/webresources/refs/heads/main/WSL-Scripts-Ubuntu/setup.sh | bash
 ```
 
+**Important:** After the script completes successfully, you MUST restart your WSL session:
+
+1. Type: `exit` to close Ubuntu
+2. Open WSL again: `wsl -d Ubuntu` (or just `wsl`)
+3. Test it works: `claude --version`
+
 **That's it!** The script will automatically:
 - Update your system
 - Install Node.js via NVM
@@ -80,8 +86,10 @@ npm install -g @anthropic-ai/claude-code
 ```bash
 node --version
 npm --version
-claude-code --version
+claude --version
 ```
+
+**Note:** The command is `claude`, not `claude-code`. If you get "command not found", restart your terminal.
 
 ---
 
@@ -90,8 +98,12 @@ claude-code --version
 After setup is complete:
 
 1. Open a terminal
-2. Type `wsl` to enter your Ubuntu environment
-3. Use Claude Code with: `claude-code --help`
+2. Type `wsl` to enter your Ubuntu environment  
+3. Use Claude Code with: `claude --help`
+
+**Available commands:**
+- `claude --help` (main command)
+- `claude-code --help` (alias that works the same way)
 
 ## Troubleshooting
 
@@ -114,10 +126,16 @@ After setup is complete:
   - Add to ~/.bashrc: `nvm use node`
 
 ### Claude Code Issues
-- **"claude-code command not found"**
+- **"claude command not found"**
+  - **Most common fix:** Exit WSL (`exit`) and restart (`wsl`)
   - Verify Node.js is working: `node --version`
-  - Reinstall: `npm install -g @anthropic-ai/claude-code`
+  - Try: `source ~/.bashrc`
   - Check PATH: `echo $PATH`
+  
+- **Script completed but claude doesn't work**
+  - This is normal! You must restart your WSL session
+  - Type `exit` then `wsl` to restart
+  - The command is `claude`, not `claude-code`
 
 ### General Issues
 - **Commands fail with permission errors**
