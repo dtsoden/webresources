@@ -1,8 +1,7 @@
 #!/bin/bash
 
 # Ubuntu Development Environment Setup Script
-# Run this inside WSL Ubuntu after initial setup
-# Usage: curl -fsSL https://your-github-url/setup.sh | bash
+# This replicates the exact manual steps that work
 
 set -e  # Exit on any error
 
@@ -13,7 +12,6 @@ YELLOW='\033[1;33m'
 BLUE='\033[0;34m'
 NC='\033[0m' # No Color
 
-# Print functions
 print_status() {
     echo -e "${GREEN}[INFO]${NC} $1"
 }
@@ -22,172 +20,88 @@ print_error() {
     echo -e "${RED}[ERROR]${NC} $1"
 }
 
-print_warning() {
-    echo -e "${YELLOW}[WARNING]${NC} $1"
-}
-
 print_step() {
     echo -e "${BLUE}[STEP]${NC} $1"
 }
 
-# Banner
 echo "=================================================="
 echo "    Ubuntu Development Environment Setup"
-echo "    Node.js + Claude Code Installation"
+echo "    Following exact manual steps that work"
 echo "=================================================="
 echo ""
 
-# Check if running in WSL
-if ! grep -qi microsoft /proc/version 2>/dev/null && ! grep -qi wsl /proc/version 2>/dev/null; then
-    print_warning "This doesn't appear to be WSL. Continuing anyway..."
-fi
+# Step 1: Update system
+print_step "Running apt update..."
+sudo apt update
 
-# Update system
-print_step "Updating system packages..."
-export DEBIAN_FRONTEND=noninteractive
-sudo apt update -y
+print_step "Running apt upgrade..."
 sudo apt upgrade -y
 
-# Install essential packages
-print_step "Installing essential packages..."
-sudo apt install -y curl wget git build-essential software-properties-common
+# Step 2: Install NVM
+print_step "Installing NVM..."
+curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/master/install.sh | bash
 
-print_status "Essential packages installed successfully"
-
-# Install NVM
-print_step "Installing Node Version Manager (NVM)..."
-if [ -d "$HOME/.nvm" ]; then
-    print_warning "NVM directory already exists, skipping download"
-else
-    curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/master/install.sh | bash
-    print_status "NVM installation script completed"
-fi
-
-# Source NVM for current session
+# Step 3: Load NVM (this is the key step that was missing)
+print_step "Loading NVM for current session..."
 export NVM_DIR="$HOME/.nvm"
 [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
 [ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"
 
-# Verify NVM installation
+# Verify NVM is loaded
 if command -v nvm >/dev/null 2>&1; then
-    print_status "NVM is available in current session"
+    print_status "NVM loaded successfully"
 else
-    print_error "NVM not found in current session, but may work in new terminals"
-fi
-
-# Install Node.js
-print_step "Installing Node.js (latest stable)..."
-nvm install node
-nvm use node
-
-# Verify Node installation
-if command -v node >/dev/null 2>&1; then
-    NODE_VERSION=$(node --version)
-    NPM_VERSION=$(npm --version)
-    print_status "Node.js installed: $NODE_VERSION"
-    print_status "NPM installed: $NPM_VERSION"
-else
-    print_error "Node.js installation failed"
+    print_error "NVM failed to load"
     exit 1
 fi
 
-# Install Claude Code
-print_step "Installing Claude Code CLI..."
+# Step 4: Install Node
+print_step "Installing Node.js..."
+nvm install node
+
+# Step 5: Install Claude Code
+print_step "Installing Claude Code..."
 npm install -g @anthropic-ai/claude-code
 
-# Get npm global bin path and add to PATH for current session
-NPM_GLOBAL_PATH=$(npm config get prefix)/bin
-export PATH="$NPM_GLOBAL_PATH:$PATH"
-
-# Verify Claude Code installation
+# Verify installation
+print_step "Verifying installation..."
 if command -v claude-code >/dev/null 2>&1; then
-    CLAUDE_VERSION=$(claude-code --version 2>/dev/null || echo "installed")
-    print_status "Claude Code installed: $CLAUDE_VERSION"
+    print_status "✓ Claude Code installed successfully"
+    claude-code --version
 else
-    print_error "Claude Code installation may have failed"
-    print_warning "Global npm path: $NPM_GLOBAL_PATH"
-    print_warning "Current PATH: $PATH"
-    print_warning "Try running: npm install -g @anthropic-ai/claude-code"
+    print_error "✗ Claude Code installation failed"
+    exit 1
 fi
 
 # Configure shell for future sessions
-print_step "Configuring shell environment..."
-
-# Add NVM to bashrc if not already there
+print_step "Configuring shell for future sessions..."
 if ! grep -q "NVM_DIR" ~/.bashrc; then
     echo "" >> ~/.bashrc
-    echo "# NVM Configuration (added by setup script)" >> ~/.bashrc
+    echo "# NVM Configuration" >> ~/.bashrc
     echo 'export NVM_DIR="$HOME/.nvm"' >> ~/.bashrc
     echo '[ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"' >> ~/.bashrc
     echo '[ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"' >> ~/.bashrc
-    print_status "NVM configuration added to ~/.bashrc"
-else
-    print_status "NVM already configured in ~/.bashrc"
 fi
 
-# Add npm global bin to PATH in bashrc
-NPM_GLOBAL_PATH=$(npm config get prefix)/bin
-if ! grep -q "npm global bin" ~/.bashrc; then
-    echo "" >> ~/.bashrc
-    echo "# NPM Global bin path (added by setup script)" >> ~/.bashrc
-    echo "export PATH=\"\$(npm config get prefix)/bin:\$PATH\"" >> ~/.bashrc
-    print_status "NPM global path added to ~/.bashrc"
-fi
-
-# Add helpful aliases
-if ! grep -q "claude-code aliases" ~/.bashrc; then
-    echo "" >> ~/.bashrc
-    echo "# Claude Code aliases (added by setup script)" >> ~/.bashrc
+# Add aliases
+if ! grep -q "alias claude=" ~/.bashrc; then
     echo 'alias claude="claude-code"' >> ~/.bashrc
-    echo 'alias cc="claude-code"' >> ~/.bashrc
-    print_status "Claude Code aliases added (claude, cc)"
 fi
 
-# Create a simple test to verify everything works
-print_step "Running verification tests..."
-
-# Test Node.js
-if node -e "console.log('Node.js test: OK')" >/dev/null 2>&1; then
-    print_status "✓ Node.js is working"
-else
-    print_error "✗ Node.js test failed"
-fi
-
-# Test NPM
-if npm --version >/dev/null 2>&1; then
-    print_status "✓ NPM is working"
-else
-    print_error "✗ NPM test failed"
-fi
-
-# Test Claude Code
-if claude-code --help >/dev/null 2>&1; then
-    print_status "✓ Claude Code is working"
-else
-    print_warning "✗ Claude Code test failed (may still work in new terminal)"
-fi
-
-# Final summary
 echo ""
 echo "=================================================="
 echo "                SETUP COMPLETE!"
 echo "=================================================="
 echo ""
-print_status "Installed components:"
-echo "  • Node.js: $(node --version 2>/dev/null || echo 'Unknown version')"
-echo "  • NPM: $(npm --version 2>/dev/null || echo 'Unknown version')"
-echo "  • Claude Code: Available globally"
+print_status "Installation successful:"
+echo "  • Node.js: $(node --version)"
+echo "  • NPM: $(npm --version)"
+echo "  • Claude Code: Working"
 echo ""
-print_status "Available commands:"
+print_status "You can now use:"
 echo "  • claude-code --help"
-echo "  • claude --help (alias)"
-echo "  • cc --help (short alias)"
+echo "  • claude --help"
 echo ""
-print_warning "Important: Open a NEW terminal or run 'source ~/.bashrc' to use NVM in future sessions"
+print_status "For NEW terminals, run: source ~/.bashrc"
+echo "Current terminal is ready to use!"
 echo ""
-print_status "To get started:"
-echo "  1. Close this terminal and open a new one"
-echo "  2. Type: wsl (if using from Windows)"
-echo "  3. Type: claude-code --help"
-echo ""
-echo "Happy coding! 🚀"
