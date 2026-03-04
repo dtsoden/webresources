@@ -7,3 +7,5 @@
 
 # Step 3: Launch Claude Code and run this prompt
 ```I am on (windows | mac), help me install @Claude_Code_StatusLine_Setup_Guide.pdf```
+# Open Bug I Filed
+[Ticket #30725](https://github.com/anthropics/claude-code/issues/30725)
